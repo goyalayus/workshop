@@ -140,6 +140,68 @@ export const annotations = sqliteTable(
   ],
 );
 
+export const auto_debug_runs = sqliteTable(
+  "auto_debug_runs",
+  {
+    id: text("id").primaryKey(),
+    name: text("name"),
+    status: text("status", { enum: ["queued", "running", "done", "error", "cancelled"] }).notNull(),
+    model: text("model").notNull(),
+    run_ids: text("run_ids").notNull(),
+    architecture_context: text("architecture_context"),
+    summary: text("summary"),
+    error: text("error"),
+    started_at: integer("started_at").notNull(),
+    completed_at: integer("completed_at"),
+    updated_at: integer("updated_at").notNull(),
+  },
+  (table) => [
+    index("idx_auto_debug_runs_status").on(table.status, desc(table.updated_at)),
+    index("idx_auto_debug_runs_updated").on(desc(table.updated_at)),
+  ],
+);
+
+export const auto_debug_failure_cases = sqliteTable(
+  "auto_debug_failure_cases",
+  {
+    id: text("id").primaryKey(),
+    title: text("title").notNull(),
+    summary: text("summary").notNull(),
+    severity: text("severity", { enum: ["low", "medium", "high"] }).notNull(),
+    status: text("status", { enum: ["open", "resolved", "ignored"] }).notNull().default("open"),
+    first_seen_run_id: text("first_seen_run_id"),
+    occurrence_count: integer("occurrence_count").notNull().default(0),
+    created_at: integer("created_at").notNull(),
+    updated_at: integer("updated_at").notNull(),
+  },
+  (table) => [
+    index("idx_auto_debug_failure_cases_updated").on(desc(table.updated_at)),
+    index("idx_auto_debug_failure_cases_status").on(table.status, desc(table.updated_at)),
+  ],
+);
+
+export const auto_debug_failure_occurrences = sqliteTable(
+  "auto_debug_failure_occurrences",
+  {
+    id: text("id").primaryKey(),
+    analysis_run_id: text("analysis_run_id").notNull().references(() => auto_debug_runs.id),
+    failure_case_id: text("failure_case_id").notNull().references(() => auto_debug_failure_cases.id),
+    trace_run_id: text("trace_run_id").notNull(),
+    span_id: text("span_id"),
+    trace_part_index: integer("trace_part_index").notNull().default(0),
+    summary: text("summary").notNull(),
+    evidence: text("evidence"),
+    difference: text("difference"),
+    raw_json: text("raw_json"),
+    created_at: integer("created_at").notNull(),
+  },
+  (table) => [
+    index("idx_auto_debug_occurrences_case").on(table.failure_case_id, desc(table.created_at)),
+    index("idx_auto_debug_occurrences_run").on(table.analysis_run_id, desc(table.created_at)),
+    index("idx_auto_debug_occurrences_trace").on(table.trace_run_id),
+  ],
+);
+
 export const runs_with_hints = sqliteView("runs_with_hints", {
   id: text("id"),
   event_id: text("event_id"),

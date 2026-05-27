@@ -60,6 +60,9 @@ import {
   type AnnotationSource,
 } from "./annotations";
 import { replayDefaultDemoTraces } from "./demo-traces";
+import {
+  registerAutoDebugRoutes,
+} from "./auto-debug-routes";
 
 const CODEX_FORK_COMPACT_PROMPT = [
   "<workshop_internal_compact_fork>",
@@ -1038,6 +1041,9 @@ export async function createServer(port: number) {
     }
     res.json(tailLiveEvents(req.params.id, opts));
   });
+
+  registerAutoDebugRoutes(app);
+
   app.post("/api/clear", (_req, res) => { clearAll(); broadcast("clear", {}); res.json({ ok: true }); });
 
   app.get("/api/workspace/active", (_req, res) => {

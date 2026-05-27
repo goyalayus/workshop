@@ -14,6 +14,7 @@ import { RunsPage } from "./pages/RunsPage";
 import { SearchPage } from "./pages/SearchPage";
 import { SavedPage } from "./pages/SavedPage";
 import { SettingsPage } from "./pages/SettingsPage";
+import { AutoDebugPage } from "./pages/AutoDebugPage";
 import { sendWorkshopMessage, useWorkshopConnected } from "./hooks/use-workshop-ws";
 import { useAgentUiCommands } from "./hooks/use-agent-ui-commands";
 import { runPath } from "./utils/navigation";
@@ -113,6 +114,7 @@ export const router = createBrowserRouter([
       { path: "saved/:runId/convo", element: <SavedPage /> },
       { path: "saved/:runId", element: <SavedPage /> },
       { path: "saved", element: <SavedPage /> },
+      { path: "auto-debug", element: <AutoDebugPage /> },
       { path: "settings", element: <SettingsPage /> },
       { path: "*", element: <Navigate to="/runs" replace /> },
     ],
